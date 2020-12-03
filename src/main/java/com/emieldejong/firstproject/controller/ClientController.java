@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -33,14 +34,20 @@ public class ClientController {
     }
     @PostMapping("/clients")
     public ResponseEntity new_client(@RequestBody String client) {
-        long maxID = this.clients.keySet().stream().max(Comparator.comparing(Long::valueOf)).get();
-        this.clients.put(maxID + 1, client);
+        long newId = Collections.max(clients.keySet())+1;
+        this.clients.put(newId, client);
         return new ResponseEntity("Client " + client + " aangemaakt.", HttpStatus.CREATED);
     }
 
     @GetMapping("/clients/{id}")
-    public String get_client(@PathVariable("id") long id) {
-        return "Gegevens van klant " + id + " ...";
+    public ResponseEntity get_client(@PathVariable long id) {
+        if (this.clients.containsKey(id)) {
+            String client = this.clients.get(id);
+            return new ResponseEntity(client, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity("Klant " + id + " bestaat niet.", HttpStatus.CONFLICT);
+        }
     }
 
     @PutMapping("/clients/{d}")
@@ -54,8 +61,14 @@ public class ClientController {
     }
 
     @DeleteMapping("/clients/{id}")
-    public String delete_client(@PathVariable("id") long id) {
-        return "Klant " + id + " verwijderd.";
+    public ResponseEntity delete_client(@PathVariable("id") long id) {
+        if (this.clients.containsKey(id)) {
+            this.clients.remove(id);
+            return new ResponseEntity("Klant " + id + " verwijderd.", HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity("Klant " + id + " bestaat niet.", HttpStatus.CONFLICT);
+        }
     }
 }
 
