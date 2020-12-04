@@ -28,13 +28,15 @@ public class ClientController {
         clients.put(2L, "Pietersen");
         clients.put(3L, "Klaassen");
     }
+
     @GetMapping("/clients")
     public ResponseEntity get_clients() {
         return ResponseEntity.ok().body(this.clients);
     }
+
     @PostMapping("/clients")
     public ResponseEntity new_client(@RequestBody String client) {
-        long newId = Collections.max(clients.keySet())+1;
+        long newId = Collections.max(clients.keySet()) + 1;
         this.clients.put(newId, client);
         return new ResponseEntity("Client " + client + " aangemaakt.", HttpStatus.CREATED);
     }
@@ -50,14 +52,26 @@ public class ClientController {
         }
     }
 
-    @PutMapping("/clients/{d}")
-    public String update_client(@PathVariable("id") long id) {
-        return "Klant " + id + " aangepast";
+    @PutMapping("/clients/{id}")
+    public ResponseEntity update_client(@PathVariable("id") long id, @RequestBody String client) {
+        if (this.clients.containsKey(id)) {
+            this.clients.put(id, client);
+            return new ResponseEntity(client, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity("Klant " + id + " bestaat niet.", HttpStatus.CONFLICT);
+        }
     }
 
     @PatchMapping("/clients/{id}")
-    public String partial_update_client(@PathVariable("id") long id) {
-        return "Klant " + id + " aangepast";
+    public ResponseEntity partial_update_client(@PathVariable("id") long id, @RequestBody String client) {
+        if (this.clients.containsKey(id)) {
+            this.clients.put(id, client);
+            return new ResponseEntity(client, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity("Klant " + id + " bestaat niet.", HttpStatus.CONFLICT);
+        }
     }
 
     @DeleteMapping("/clients/{id}")
